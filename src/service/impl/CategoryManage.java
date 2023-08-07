@@ -13,25 +13,28 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CategoryManage implements ICategoryService, IOFile<Category> {
-    private final List<Category>categories;
-    private  final Scanner scanner ;
-    private final String PATH ="hoan.txt";
-    private static  CategoryManage categoryManage ;
+    private final List<Category> categories;
+    private final Scanner scanner;
+    private final String PATH = "hoan.txt";
+    private static CategoryManage categoryManage;
 
     public CategoryManage(Scanner scanner) {
         this.scanner = scanner;
         categories = read(PATH);
         setIndex();
     }
+
     public static CategoryManage getInstance(Scanner scanner) {
         if (categoryManage == null) {
             categoryManage = new CategoryManage(scanner);
         }
         return categoryManage;
     }
+
     public List<Category> getCategories() {
         return categories;
     }
+
     private void setIndex() {
         if (!categories.isEmpty()) {
             int index = categories.get(0).getId();
@@ -45,6 +48,7 @@ public class CategoryManage implements ICategoryService, IOFile<Category> {
             Category.Index = 0;
         }
     }
+
     private Category getCategory() {
         System.out.println("Input name: ");
         String name = scanner.nextLine();
@@ -64,7 +68,7 @@ public class CategoryManage implements ICategoryService, IOFile<Category> {
             System.out.println("Input new name: ");
             String name = scanner.nextLine();
             category.setName(name);
-        }else {
+        } else {
             System.out.println("Not exist category have this id!");
         }
         write(categories, PATH);
@@ -75,7 +79,7 @@ public class CategoryManage implements ICategoryService, IOFile<Category> {
         System.out.println("Input id : ");
         int id = Integer.parseInt(scanner.nextLine());
         for (Category category : categories) {
-            if(category.getId() == id) {
+            if (category.getId() == id) {
                 return category;
             }
         }
@@ -93,12 +97,11 @@ public class CategoryManage implements ICategoryService, IOFile<Category> {
             System.out.println("Not exist category in list!");
         }
     }
-
     @Override
     public void write(List<Category> categories, String path) {
         try {
-            FileOutputStream fileOutputStream =new FileOutputStream(path);
-            ObjectOutputStream objectOutputStream =new ObjectOutputStream(fileOutputStream);
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(categories);
             objectOutputStream.close();
         } catch (IOException e) {
@@ -110,11 +113,11 @@ public class CategoryManage implements ICategoryService, IOFile<Category> {
     public List<Category> read(String path) {
         List<Category> categoryList = new ArrayList<>();
         File file = new File(path);
-        try  {
+        try {
             FileInputStream fileInputStream = new FileInputStream(file);
             ObjectInputStream obj = new ObjectInputStream(fileInputStream);
             if (obj.available() != -1) {
-                categoryList =(List<Category>) obj.readObject();
+                categoryList = (List<Category>) obj.readObject();
             }
         } catch (IOException | ClassCastException | ClassNotFoundException e) {
             e.printStackTrace();

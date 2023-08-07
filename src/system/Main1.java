@@ -12,13 +12,16 @@ public class Main1 {
         CategoryMain categoryMain =new CategoryMain();
         MilkMain milkMain =new MilkMain();
         MilkManage milkManage =new MilkManage(scanner,categoryManage);
+        int choice =-1;
         do {
             System.out.println("Menu");
             System.out.println("1. Menu category");
             System.out.println("2. Menu Milk");
             System.out.println("0. Exit");
             System.out.println("Enter your choice: ");
-            int choice = Integer.parseInt(scanner.nextLine());
+           try{
+               choice = Integer.parseInt(scanner.nextLine());
+
             switch (choice) {
                 case 1:
                     categoryMain.menu();
@@ -26,9 +29,12 @@ public class Main1 {
                 case 2:
                     milkMain.menu(milkManage);
                     break;
-                case 0:
-                    System.exit(0);
             }
-        } while (true);
+           }
+        catch (Exception e){
+            System.out.println("-----------");;
+        }
+        } while (choice!=0);
     }
+
 }

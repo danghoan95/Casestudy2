@@ -4,7 +4,7 @@ import service.impl.RegexPassWordAccount;
 
 import java.util.Scanner;
 
-public class MainAccountPassword {
+public  class MainAccountPassword {
 
 
     public static void main(String[] args) {

@@ -17,9 +17,9 @@ public class MilkMain {
             System.out.println("4. Display search milk name");
             System.out.println("5. Display  milk price min");
             System.out.println("6. Display  milk price max");
-            System.out.println("7. Display  milk price");
+            System.out.println("7. Display search  milk price");
             System.out.println("8. Display  milk category");
-            System.out.println("9. Delete");
+            System.out.println("9. Delete Milk");
             System.out.println("10. Display DisCount : ");
             System.out.println("11. Display Sum Milk : ");
             System.out.println("12. DeleteCategory : ");
@@ -61,7 +61,7 @@ public class MilkMain {
                     milkManage.displaySumMilk();
                     break;
                 case 12:
-                    milkManage.deleteCategory();
+                    milkManage.deleteProductCategory();
                     break;
             }
         } while (choice != 0);

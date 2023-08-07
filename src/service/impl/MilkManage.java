@@ -10,6 +10,7 @@ import service.IMilkService;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -17,9 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MilkManage implements IMilkService, IOFile<Milk> {
-    public List<Milk> getMilkList() {
-        return milkList;
-    }
+
 
     private final List<Milk> milkList;
     private final Scanner scanner;
@@ -31,6 +30,10 @@ public class MilkManage implements IMilkService, IOFile<Milk> {
         this.scanner = scanner;
         this.categoryManage = categoryManage;
         setIndex();
+    }
+
+    public List<Milk> getMilkList() {
+        return milkList;
     }
 
     private void setIndex() {
@@ -61,7 +64,12 @@ public class MilkManage implements IMilkService, IOFile<Milk> {
         categoryManage.display();
         System.out.println("Enter Category :");
         Category category = categoryManage.findById();
-        return new MilkPowder(name, price, quantity, date, weight, category);
+
+        if (ChronoUnit.YEARS.between(date.plusYears(2), LocalDate.now()) > 0) {
+            return null;
+        } else {
+            return new MilkPowder(name, price, quantity, date, weight, category);
+        }
     }
 
     private FreshMilk getFreshMilk() {
@@ -78,7 +86,12 @@ public class MilkManage implements IMilkService, IOFile<Milk> {
         categoryManage.display();
         System.out.println("Enter Category :");
         Category category = categoryManage.findById();
-        return new FreshMilk(name, price, quantity, date, volume, category);
+        if (ChronoUnit.MONTHS.between(date.plusMonths(6), LocalDate.now()) > 0) {
+            return null;
+        } else {
+            return new FreshMilk(name, price, quantity, date, volume, category);
+        }
+
     }
 
     @Override
@@ -87,26 +100,22 @@ public class MilkManage implements IMilkService, IOFile<Milk> {
         if (milkList != null) {
             milkList.remove(milk);
         } else {
-            System.out.println("Not exist category have this id!");
+            System.out.println("Not exist milk have this id!");
         }
         write(milkList, PATH);
     }
 
-    public void deleteCategory() {
+    public void deleteProductCategory() {
         categoryManage.display();
-        List<Milk> milkList1 = new ArrayList<>();
-        Category category =categoryManage.findById();
-       for (Milk milk: milkList){
-           if(milk.getCategory().getId()==category.getId()){
-               milkList1.add(milk);
-           }
-       }
-       for (Milk milk :milkList1){
-           System.out.println(milk);
-       }
+        Category category = categoryManage.findById();
+        for (int i = 0; i < milkList.size(); i++) {
+            if (milkList.get(i).getCategory().getId() == category.getId()) {
+                milkList.remove(milkList.get(i));
 
+            }
+        }
+        write(milkList, PATH);
     }
-
 
     @Override
     public void displayMaxPrice() {
@@ -205,48 +214,37 @@ public class MilkManage implements IMilkService, IOFile<Milk> {
             switch (choie) {
                 case 1:
                     System.out.println("Enter FreshMilk");
-                    milkList.add(getFreshMilk());
+                    Milk milk = getFreshMilk();
+                    if (milk != null) {
+                        milkList.add(milk);
+                        System.out.println("add thành công");
+                    } else {
+                        System.out.println("đã hết hạn sử dụng");
+                    }
+
                     break;
                 case 2:
                     System.out.println("Enter MilkPowder");
-                    milkList.add(getMilkPowder());
+                    Milk milk1 = getMilkPowder();
+                    if (milk1 != null) {
+                        milkList.add(milk1);
+                        System.out.println("add thành công");
+                    } else {
+                        System.out.println("đã hết hạn sử dụng");
+                    }
                     break;
             }
             write(milkList, PATH);
         } while (choie != 0);
     }
 
-    @Override
-    public void update() {
-        int choie;
-        do {
-            System.out.println("1.Update MilkPower :");
-            System.out.println("2.Update FreshMilk :");
-            System.out.println("0.Exit :");
-            choie = Integer.parseInt(scanner.nextLine());
-            switch (choie) {
-                case 1:
-                    System.out.println("Update MilkPower :");
-                    updateMilkPowder();
-                    break;
-                case 2:
-                    System.out.println("Update FreshMilk :");
-                    updateFreshMilk();
-            }
-            write(milkList, PATH);
 
-        } while (choie != 0);
-    }
-
-    public void updateMilkPowder() {
-        Milk milk = findById();
+    private void inputDataUpdate(Milk milk) {
         if (milk != null) {
             System.out.println("Enter name :");
             milk.setName(scanner.nextLine());
-            ;
             System.out.println("Enter price :");
             milk.setPrice(Double.parseDouble(scanner.nextLine()));
-            ;
             System.out.println("Enter quantity");
             milk.setQuantity(Integer.parseInt(scanner.nextLine()));
             System.out.println("Enter date");
@@ -263,51 +261,26 @@ public class MilkManage implements IMilkService, IOFile<Milk> {
             } else {
                 System.out.println("Enter incorrectly and then re-enter");
             }
-            System.out.println("Enter Weight");
-            if (milk instanceof MilkPowder) {
+        }
+    }
+
+    public void update() {
+        Milk milk = findById();
+        if (milk != null) {
+            if (milk instanceof FreshMilk) {
+                inputDataUpdate(milk);
+                System.out.println("Enter Volume");
+
+                ((FreshMilk) milk).setVolume(Double.parseDouble(scanner.nextLine()));
+            } else {
+                inputDataUpdate(milk);
+                System.out.println("Enter Weight");
                 ((MilkPowder) milk).setWeigh(Double.parseDouble(scanner.nextLine()));
             }
             categoryManage.display();
             System.out.println("Enter Category");
             Category category = categoryManage.findById();
-            write(milkList, PATH);
-
-        }
-
-    }
-
-    public void updateFreshMilk() {
-        Milk milk = findById();
-        if (milk != null) {
-            System.out.println("Enter name :");
-            milk.setName(scanner.nextLine());
-            ;
-            System.out.println("Enter price :");
-            milk.setPrice(Double.parseDouble(scanner.nextLine()));
-            ;
-            System.out.println("Enter quantity");
-            milk.setQuantity(Integer.parseInt(scanner.nextLine()));
-            System.out.println("Enter date");
-            Pattern pattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
-            String date = scanner.nextLine();
-            if (pattern.matcher(date).matches()) {
-                try {
-                    milk.setManufacturingDate(LocalDate.parse(date));
-                } catch (DateTimeParseException e) {
-                    e.printStackTrace();
-                }
-
-
-            } else {
-                System.out.println("Enter incorrectly and then re-enter");
-            }
-            System.out.println("Enter Volume");
-            if (milk instanceof FreshMilk) {
-                ((FreshMilk) milk).setVolume(Double.parseDouble(scanner.nextLine()));
-            }
-            categoryManage.display();
-            System.out.println("Enter Category");
-            Category category = categoryManage.findById();
+            milk.setCategory(category);
             write(milkList, PATH);
 
         }
